@@ -1,0 +1,37 @@
+name: Deploy to Ubuntu Server
+
+on:
+  push:
+    branches:
+      - test
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: npm run build
+
+      - name: Deploy to server
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: 134.175.86.174
+          SSH_USERNAME: ubuntu
+        run: |
+          mkdir -p ~/.ssh
+          echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan ${SSH_HOST} >> ~/.ssh/known_hosts
+          rsync -avz --delete-after ./dist/ ${SSH_USERNAME}@${SSH_HOST}:/path/to/deploy
