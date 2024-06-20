@@ -34,4 +34,5 @@ jobs:
           echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan ${SSH_HOST} >> ~/.ssh/known_hosts
-          rsync -avz --delete-after ./dist/ ${SSH_USERNAME}@${SSH_HOST}:/path/to/deploy
+          rsync -avz --delete-after ./dist/ ${SSH_USERNAME}@${SSH_HOST}:/var/www/discord-like | tee deployment.log
+          scp deployment.log ${SSH_USERNAME}@${SSH_HOST}:/var/www/discord-like/deployment.log
